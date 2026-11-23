@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Financial Performance (P&L)"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "a30cbff6-7dfb-40d1-94ca-4a9983f2bf02"
+  }
+}

@@ -1,0 +1,33 @@
+/// Single-row utility table holding the data refresh timestamp. Hidden; surfaced through the Last Refreshed measure.
+table 'Refresh Stamp'
+	isHidden
+	lineageTag: 0034ab68-b13f-423c-b722-8688221789f8
+
+	column 'Last Refreshed'
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		isAvailableInMdx: false
+		lineageTag: 5e302b4e-4b26-4430-9c54-6c511af5c571
+		summarizeBy: none
+		sourceColumn: Last Refreshed
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Refresh Stamp' = m
+		mode: import
+		source =
+				let
+				    Source = DateTime.LocalNow(),
+				    #"Converted to Table" = #table(1, {{Source}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Converted to Table",{{"Column1", type datetime}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"Column1", "Last Refreshed"}})
+				in
+				    #"Renamed Columns"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+

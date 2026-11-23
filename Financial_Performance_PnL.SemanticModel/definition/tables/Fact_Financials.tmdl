@@ -1,0 +1,106 @@
+/// P&L fact table at month x brand x region x channel x account grain. One row per combination per version; Actual-version rows carry ActualAmount and Budget-version rows carry BudgetAmount, so the two never overlap. Synthetic data.
+table Fact_Financials
+	lineageTag: d625338b-a6e2-47d6-b2e6-daca7993a76f
+
+	column DateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: c77a4d52-f3e8-4908-9c4d-1c390b60e663
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column BrandKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: a1ddf7fc-7ac9-4b0f-8879-e32b75b5f090
+		summarizeBy: none
+		sourceColumn: BrandKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: 4e307cf2-cbbc-4fc7-b933-1907f980f4b5
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChannelKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: b9016df1-4bda-48c5-8863-446ee0312eca
+		summarizeBy: none
+		sourceColumn: ChannelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountName
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		lineageTag: e4b05a46-6e04-4df0-8c6a-5a66479ac7a0
+		summarizeBy: none
+		sourceColumn: AccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column BudgetAmount
+		dataType: decimal
+		isHidden
+		formatString: \€#,0;-\€#,0;\€0
+		isAvailableInMdx: false
+		lineageTag: 42e0ec26-c67a-4137-a124-ffa606bf7704
+		summarizeBy: none
+		sourceColumn: BudgetAmount
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActualAmount
+		dataType: decimal
+		isHidden
+		formatString: \€#,0;-\€#,0;\€0
+		isAvailableInMdx: false
+		lineageTag: 6844b6b6-9338-4499-905b-dc2b1b834f50
+		summarizeBy: none
+		sourceColumn: ActualAmount
+
+		annotation SummarizationSetBy = Automatic
+
+	column VersionType
+		dataType: string
+		isHidden
+		isAvailableInMdx: false
+		lineageTag: 1509bb28-0d26-47ef-bb23-719cf9aa53aa
+		summarizeBy: none
+		sourceColumn: VersionType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Financials = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "\PnL_Dataset.xlsx"), null, true),
+				    Fact_Financials_Sheet = Source{[Item="Fact_Financials",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Fact_Financials_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"DateKey", Int64.Type}, {"BrandKey", Int64.Type}, {"RegionKey", Int64.Type}, {"ChannelKey", Int64.Type}, {"AccountName", type text}, {"BudgetAmount", Currency.Type}, {"ActualAmount", Currency.Type}, {"VersionType", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type", {"FactKey", "AccountCategory"}, MissingField.Ignore)
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

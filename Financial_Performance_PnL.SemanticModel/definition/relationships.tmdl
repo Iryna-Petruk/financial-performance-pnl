@@ -1,0 +1,20 @@
+relationship Fact_Financials_Dim_Date
+	fromColumn: Fact_Financials.DateKey
+	toColumn: Dim_Date.DateKey
+
+relationship Fact_Financials_Dim_Brand
+	fromColumn: Fact_Financials.BrandKey
+	toColumn: Dim_Brand.BrandKey
+
+relationship Fact_Financials_Dim_Region
+	fromColumn: Fact_Financials.RegionKey
+	toColumn: Dim_Region.RegionKey
+
+relationship Fact_Financials_Dim_Account
+	fromColumn: Fact_Financials.AccountName
+	toColumn: Dim_Account.AccountName
+
+relationship Fact_Financials_Dim_Channel
+	fromColumn: Fact_Financials.ChannelKey
+	toColumn: Dim_Channel.ChannelKey
+

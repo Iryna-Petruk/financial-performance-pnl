@@ -1,0 +1,68 @@
+/// Brand dimension: brand, portfolio category, launch year and price segment.
+table Dim_Brand
+	lineageTag: f9991254-3609-4373-8c38-20e1826e58c5
+
+	column BrandKey
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: 43133db4-8cf2-419e-8480-595b29476c58
+		summarizeBy: none
+		sourceColumn: BrandKey
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Individual brand name.
+	column BrandName
+		dataType: string
+		lineageTag: 9fde005e-2cff-4e80-ba97-d7c0405ab289
+		summarizeBy: none
+		sourceColumn: BrandName
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Brand portfolio category: Consumer Beauty, Prestige Fragrance, Professional Beauty or Skincare.
+	column Category
+		dataType: string
+		lineageTag: 9829799d-1a6b-45b5-a31f-194a933c72e7
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Year the brand was launched.
+	column LaunchYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 3d660314-32f4-4ecf-9ac7-3aacb9d76737
+		summarizeBy: none
+		sourceColumn: LaunchYear
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Price positioning of the brand.
+	column PriceSegment
+		dataType: string
+		lineageTag: a2cedf2e-2ce8-4dff-908f-93f677c88fdb
+		summarizeBy: none
+		sourceColumn: PriceSegment
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Brand = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "\PnL_Dataset.xlsx"), null, true),
+				    Dim_Brand_Sheet = Source{[Item="Dim_Brand",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Dim_Brand_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"BrandKey", Int64.Type}, {"BrandName", type text}, {"Category", type text}, {"LaunchYear", Int64.Type}, {"PriceSegment", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

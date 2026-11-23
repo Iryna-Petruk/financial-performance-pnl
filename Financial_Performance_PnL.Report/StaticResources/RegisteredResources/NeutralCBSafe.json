@@ -1,0 +1,72 @@
+{
+  "name": "PnL Neutral CB-Safe",
+  "dataColors": [
+    "#1F3A5F",
+    "#E69F00",
+    "#4E6E8E",
+    "#009E73",
+    "#D9E3EC",
+    "#56B4E9",
+    "#CC79A7",
+    "#D55E00"
+  ],
+  "foreground": "#1F3A5F",
+  "foregroundNeutralSecondary": "#4E6E8E",
+  "background": "#FFFFFF",
+  "backgroundLight": "#D9E3EC",
+  "tableAccent": "#1F3A5F",
+  "good": "#009E73",
+  "neutral": "#4E6E8E",
+  "bad": "#D55E00",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "show": true,
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "show": true,
+            "radius": 5
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 100
+          }
+        ]
+      }
+    }
+  },
+  "textClasses": {
+    "title": {
+      "fontSize": 10,
+      "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    },
+    "callout": {
+      "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+/// Sales region dimension: region, local currency, regional cluster and market maturity.
+table Dim_Region
+	lineageTag: e1dbfff6-90d4-4c2e-ac77-4b53564d8ba5
+
+	column RegionKey
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: d4778aa4-3326-4b1a-b805-9091e4e0c562
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sales region: North America, Europe, Asia Pacific or Latin America.
+	column Region
+		dataType: string
+		lineageTag: d181fab4-e937-4132-90cc-268da81f0991
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Local currency of the region. Reporting in this model is in EUR throughout, so this is descriptive only and no conversion is applied.
+	column Currency
+		dataType: string
+		lineageTag: 7b0c2d01-5e44-460c-8c20-f1b3186a3323
+		summarizeBy: none
+		sourceColumn: Currency
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Regional grouping: Americas, EMEA or APAC.
+	column Cluster
+		dataType: string
+		lineageTag: 48ad9fd3-76aa-4009-bbd2-2db9daade82c
+		summarizeBy: none
+		sourceColumn: Cluster
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Market maturity: Mature, Growth or Emerging.
+	column MarketStage
+		dataType: string
+		lineageTag: 338f0263-ed9d-4617-8c7d-20512b0391c6
+		summarizeBy: none
+		sourceColumn: MarketStage
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Region = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "\PnL_Dataset.xlsx"), null, true),
+				    Dim_Region_Sheet = Source{[Item="Dim_Region",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Dim_Region_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"RegionKey", Int64.Type}, {"Region", type text}, {"Currency", type text}, {"Cluster", type text}, {"MarketStage", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

@@ -1,0 +1,24 @@
+# Power BI local-only state
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Packaged report binaries — this project is authored as PBIP (TMDL + PBIR), which is
+# the version-controllable format. A .pbix alongside it is a second source of truth.
+*.pbix
+*.pbit
+
+# Excel lock files left behind when the workbook is open
+~$*.xlsx
+
+# Windows shell cruft
+desktop.ini
+**/desktop.ini
+Thumbs.db
+**/Thumbs.db
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Local PDF export used to regenerate the screenshots
+Financial_Performance_PnL.pdf

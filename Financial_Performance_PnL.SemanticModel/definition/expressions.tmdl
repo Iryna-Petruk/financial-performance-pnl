@@ -1,0 +1,6 @@
+/// Folder holding the source workbook. Set this to the data folder inside your clone of the repository.
+expression SourceFolder = "C:\PnL-Dashboard\data" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 2de0b440-f4f0-41b3-aa05-0012bec75155
+
+	annotation PBI_ResultType = Text
+

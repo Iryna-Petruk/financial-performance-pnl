@@ -1,0 +1,71 @@
+/// P&L chart of accounts. Carries the section each line belongs to (AccountCategory), a sort order for statement layout (PLSort) and flags marking calculated subtotal rows and cost rows.
+table Dim_Account
+	lineageTag: d83c5363-4107-4b77-a655-2bf96ba11669
+
+	/// P&L line item. Sorted by PLSort so a matrix lists the statement in P&L order. Also the key to Fact_Financials.
+	column AccountName
+		dataType: string
+		isKey
+		lineageTag: 8cb74a13-3424-43b3-bdad-fff1dd225ca5
+		summarizeBy: none
+		sourceColumn: AccountName
+		sortByColumn: PLSort
+
+		annotation SummarizationSetBy = Automatic
+
+	/// P&L section the account belongs to: Revenue, COGS, Operating Expenses, Gross Profit, EBIT, Interest Expense or Net Profit. All base measures filter on this column.
+	column AccountCategory
+		dataType: string
+		lineageTag: 4827460d-7ca5-40ca-ad5d-bc7503fd0434
+		summarizeBy: none
+		sourceColumn: AccountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCalculated
+		dataType: boolean
+		isHidden
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		isAvailableInMdx: false
+		lineageTag: 13be6d5e-fd5a-4526-9b91-6ebd71697628
+		summarizeBy: none
+		sourceColumn: IsCalculated
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCost
+		dataType: boolean
+		isHidden
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		isAvailableInMdx: false
+		lineageTag: 635bf201-b8d0-4d84-8ca7-6dcf89edfeac
+		summarizeBy: none
+		sourceColumn: IsCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column PLSort
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 70ae2273-8ed3-4c39-9d12-327e6c71f7e8
+		summarizeBy: none
+		sourceColumn: PLSort
+
+	partition Dim_Account = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "\PnL_Dataset.xlsx"), null, true),
+				    Dim_Account_Sheet = Source{[Item="Dim_Account",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Dim_Account_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"AccountKey", Int64.Type}, {"AccountName", type text}, {"AccountCategory", type text}, {"PLOrder", Int64.Type}, {"IsCalculated", type logical}, {"IsRevenue", type logical}, {"IsCost", type logical}}),
+				    #"Added PLSort" = Table.AddColumn(#"Changed Type", "PLSort", each [PLOrder] * 100 + [AccountKey], Int64.Type),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added PLSort", {"AccountKey", "PLOrder", "IsRevenue"}, MissingField.Ignore)
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

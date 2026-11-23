@@ -1,0 +1,72 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "ea1ea0899079359c7182",
+  "position": {
+    "x": 290,
+    "y": 640,
+    "z": 12500,
+    "height": 62,
+    "width": 980,
+    "tabOrder": 22000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "How to read this statement.  ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "8pt",
+                      "color": "#1f3a5f"
+                    }
+                  },
+                  {
+                    "value": "Costs are shown as positive amounts. Gross Profit and EBIT are calculated rows driven by Dim_Account, not sums of the lines above them, so the statement has no grand total. Variance is signed so that positive is always favourable: revenue lines use Actual less Budget, cost lines use Budget less Actual. Amounts are in EUR exactly as supplied - the dataset states no scale. The dataset carries no interest rows, so EBIT is the bottom line and the Interest and Net Profit accounts return no values.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#1f3a5f"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

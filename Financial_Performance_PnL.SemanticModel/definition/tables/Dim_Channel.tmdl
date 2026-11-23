@@ -1,0 +1,58 @@
+/// Route-to-market dimension: channel, channel type and relative cost to serve.
+table Dim_Channel
+	lineageTag: e1f8627c-65bc-4b66-9afa-11a2dfd2a36b
+
+	column ChannelKey
+		dataType: int64
+		isHidden
+		isKey
+		formatString: 0
+		isAvailableInMdx: false
+		lineageTag: 794cef4d-9436-4803-b25b-1c222e76c29d
+		summarizeBy: none
+		sourceColumn: ChannelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Route to market: Direct, E-Commerce, Retail or Wholesale.
+	column Channel
+		dataType: string
+		lineageTag: dab1fbeb-1d6b-40fa-a1a0-c909aa8be6e3
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Whether the channel is owned or third party.
+	column ChannelType
+		dataType: string
+		lineageTag: 4db011af-a318-47e5-9ce3-04c64a4c64c1
+		summarizeBy: none
+		sourceColumn: ChannelType
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Relative cost-to-serve of the channel.
+	column CostLevel
+		dataType: string
+		lineageTag: 9fcd14cf-e971-4ef3-9d6a-d4daf0b92943
+		summarizeBy: none
+		sourceColumn: CostLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Channel = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents(SourceFolder & "\PnL_Dataset.xlsx"), null, true),
+				    Dim_Channel_Sheet = Source{[Item="Dim_Channel",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Dim_Channel_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ChannelKey", Int64.Type}, {"Channel", type text}, {"ChannelType", type text}, {"CostLevel", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

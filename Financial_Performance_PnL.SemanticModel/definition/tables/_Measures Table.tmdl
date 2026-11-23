@@ -1,0 +1,436 @@
+/// Holds every measure in the model. Carries no data of its own, which is why it has no relationships.
+table '_Measures Table'
+	lineageTag: 0f6d0445-d3ec-4247-9064-18f6d9dc6eda
+
+	/// Actual revenue (EUR). Sums ActualAmount for accounts in the Revenue section of Dim_Account, on Actual-version rows only.
+	measure 'Actual Revenue' =
+			CALCULATE (
+			    SUM ( Fact_Financials[ActualAmount] ),
+			    Dim_Account[AccountCategory] = "Revenue",
+			    Fact_Financials[VersionType] = "Actual"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: 33d4eed2-494d-4534-9fe8-f3af4c1f4e40
+
+	/// Budgeted revenue (EUR). Sums BudgetAmount for Revenue accounts on Budget-version rows only.
+	measure 'Budget Revenue' =
+			CALCULATE (
+			    SUM ( Fact_Financials[BudgetAmount] ),
+			    Dim_Account[AccountCategory] = "Revenue",
+			    Fact_Financials[VersionType] = "Budget"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: 27c32270-4ca5-46f5-8781-872708181deb
+
+	/// Actual cost of goods sold (EUR), shown as a positive cost.
+	measure 'Actual COGS' =
+			CALCULATE (
+			    SUM ( Fact_Financials[ActualAmount] ),
+			    Dim_Account[AccountCategory] = "COGS",
+			    Fact_Financials[VersionType] = "Actual"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: f1a41c73-1e74-4e6b-9173-943980ae54a6
+
+	/// Budgeted cost of goods sold (EUR), shown as a positive cost.
+	measure 'Budget COGS' =
+			CALCULATE (
+			    SUM ( Fact_Financials[BudgetAmount] ),
+			    Dim_Account[AccountCategory] = "COGS",
+			    Fact_Financials[VersionType] = "Budget"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: 6494fa38-5ac1-4fab-bf66-677213c1ca42
+
+	/// Actual operating expenses (EUR), shown as a positive cost.
+	measure 'Actual OPEX' =
+			CALCULATE (
+			    SUM ( Fact_Financials[ActualAmount] ),
+			    Dim_Account[AccountCategory] = "Operating Expenses",
+			    Fact_Financials[VersionType] = "Actual"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: 1b2996b9-21f6-413a-92bc-8e36d30f1436
+
+	/// Budgeted operating expenses (EUR). Note: the supplied dataset allocates OPEX budget evenly across the five OPEX accounts, so comparisons against actual OPEX reflect that allocation rather than performance.
+	measure 'Budget OPEX' =
+			CALCULATE (
+			    SUM ( Fact_Financials[BudgetAmount] ),
+			    Dim_Account[AccountCategory] = "Operating Expenses",
+			    Fact_Financials[VersionType] = "Budget"
+			)
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: CORE
+		lineageTag: 00c1686f-f117-45a3-af16-279e966fe406
+
+	/// Actual gross profit (EUR): Actual Revenue less Actual COGS.
+	measure 'Actual Gross Profit' = [Actual Revenue] - [Actual COGS]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: GROSS PROFIT
+		lineageTag: ba92c024-adad-4e7e-8d94-ea30d63232ce
+
+	/// Budgeted gross profit (EUR): Budget Revenue less Budget COGS.
+	measure 'Budget Gross Profit' = [Budget Revenue] - [Budget COGS]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: GROSS PROFIT
+		lineageTag: 66a572d0-1795-4207-a7af-99470a300c2e
+
+	/// Actual gross profit as a share of actual revenue. Recomputed at whatever grain the visual uses, so it is never summed.
+	measure 'Actual Gross Margin %' = DIVIDE ( [Actual Gross Profit], [Actual Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: GROSS PROFIT
+		lineageTag: 14f42bf2-62f5-4a65-8286-2aa7e11783f8
+
+	/// Budgeted gross profit as a share of budgeted revenue.
+	measure 'Budget Gross Margin %' = DIVIDE ( [Budget Gross Profit], [Budget Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: GROSS PROFIT
+		lineageTag: b94637e3-ce7b-4329-8c70-3064d9699653
+
+	/// Actual earnings before interest and tax (EUR): Actual Gross Profit less Actual OPEX. The dataset carries no interest rows, so EBIT is the bottom line of this model.
+	measure 'Actual EBIT' = [Actual Gross Profit] - [Actual OPEX]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: EBIT
+		lineageTag: 59e6ee6d-1b29-4259-ac0b-ccb028014864
+
+	/// Budgeted earnings before interest and tax (EUR). Inherits the flat OPEX budget allocation described on Budget OPEX.
+	measure 'Budget EBIT' = [Budget Gross Profit] - [Budget OPEX]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: EBIT
+		lineageTag: cf0428ef-8724-4503-ae72-dd5c8fad8770
+
+	/// Actual EBIT as a share of actual revenue.
+	measure 'Actual EBIT Margin %' = DIVIDE ( [Actual EBIT], [Actual Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: EBIT
+		lineageTag: 23b15765-eb56-44b1-9e77-61a24cb0816c
+
+	/// Revenue variance (EUR), Actual less Budget. Positive is favourable.
+	measure 'Revenue Variance' = [Actual Revenue] - [Budget Revenue]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: VARIANCE
+		lineageTag: 40c2a497-0f7c-4590-9625-69509c47030f
+
+	/// Revenue variance as a share of budgeted revenue. Positive is favourable.
+	measure 'Revenue Variance %' = DIVIDE ( [Revenue Variance], [Budget Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: VARIANCE
+		lineageTag: e1ff7f19-f0a0-403b-b4e7-d3ca7cda2ce7
+
+	/// Gross profit variance (EUR), Actual less Budget. Positive is favourable.
+	measure 'Gross Profit Variance' = [Actual Gross Profit] - [Budget Gross Profit]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: VARIANCE
+		lineageTag: 3874ca05-b504-4ef9-9540-743f63df3cc1
+
+	/// Actual COGS as a share of actual revenue. The cost counterpart of gross margin.
+	measure 'Actual COGS Ratio' = DIVIDE ( [Actual COGS], [Actual Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: COGS RATIO
+		lineageTag: 9c96fc80-1380-4309-ac65-6b23779542b6
+
+	/// Budgeted COGS as a share of budgeted revenue.
+	measure 'Budget COGS Ratio' = DIVIDE ( [Budget COGS], [Budget Revenue] )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: COGS RATIO
+		lineageTag: b297398c-8f11-481d-94f6-afc9a9c0a5ba
+
+	/// Revenue variance % as an arrow plus magnitude, for example ▲ 2.4%. Up arrow is favourable. Returns text, so it has no numeric format string.
+	measure 'Revenue vs Budget Label' =
+			VAR _v = [Revenue Variance %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        BLANK ( ),
+			        IF ( _v >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _v ), "#,0.0%" )
+			    )
+		displayFolder: KPI CARD LABELS
+		lineageTag: 49cef8c0-7f35-40e3-83cc-6a36fb4e39c1
+
+	/// Gross margin gap against budget in percentage points, for example ▼ 1.34pp. Multiplies by 100 before formatting because a percentage-point gap is not a percentage. Returns text, so it has no numeric format string.
+	measure 'Gross Margin vs Budget Label' =
+			VAR _v = [Actual Gross Margin %] - [Budget Gross Margin %]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        BLANK ( ),
+			        IF ( _v >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _v ) * 100, "0.00" ) & "pp"
+			    )
+		displayFolder: KPI CARD LABELS
+		lineageTag: 8b975e8d-0c70-4c26-896c-c33ab8954e82
+
+	/// EBIT variance as a share of budgeted EBIT. Positive is favourable. Dominated by the flat OPEX budget allocation in the supplied dataset - see Budget OPEX.
+	measure 'EBIT Variance %' = DIVIDE ( [Actual EBIT] - [Budget EBIT], ABS ( [Budget EBIT] ) )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: VARIANCE
+		lineageTag: 37a35795-4a19-4216-bb6e-c2c2decdc5b8
+
+	/// EBIT variance (EUR), Actual less Budget. Positive is favourable. Dominated by the flat OPEX budget allocation in the supplied dataset - see Budget OPEX.
+	measure 'EBIT Variance' = [Actual EBIT] - [Budget EBIT]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: VARIANCE
+		lineageTag: cfa67cbe-52df-4d16-93d8-7a9fd1795343
+
+	/// COGS variance (EUR) signed so that positive is favourable: Budget less Actual, so spending under budget is positive.
+	measure 'COGS Variance (Fav)' = [Budget COGS] - [Actual COGS]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: VARIANCE
+		lineageTag: fd2662e0-9cba-4526-8529-1f888d6c21b6
+
+	/// Operating expense variance (EUR) signed so that positive is favourable: Budget less Actual.
+	measure 'OPEX Variance (Fav)' = [Budget OPEX] - [Actual OPEX]
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: VARIANCE
+		lineageTag: 84862992-25b2-40ec-aa02-55000f45b74f
+
+	/// Gap between budgeted and actual COGS ratio, in percentage points, signed so that positive is favourable (actual ratio below budget).
+	measure 'COGS Ratio Variance (Fav)' = [Budget COGS Ratio] - [Actual COGS Ratio]
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: VARIANCE
+		lineageTag: 9d0e8a25-ad49-46f3-bf98-e1ffe698dea3
+
+	/// Timestamp of the last data refresh, taken from the single-row Refresh Stamp table. Replaces an implicit Min aggregation that was previously dropped straight into the header card.
+	measure 'Last Refreshed' = MAX ( 'Refresh Stamp'[Last Refreshed] )
+		formatString: dd mmm yyyy hh:nn
+		displayFolder: UTILITY
+		lineageTag: 23eb24ff-5e9f-4aba-a7cd-fc7228031201
+
+	/// Revenue page commentary, generated from the current filter context: strongest category, weakest category and strongest region. Collapses to single-item wording when only one category or one region is in context. Returns text, so it has no numeric format string.
+	measure 'Narrative Revenue' =
+			VAR _cats =
+			    ADDCOLUMNS ( VALUES ( Dim_Brand[Category] ), "@v", [Revenue Variance %] )
+			VAR _regs =
+			    ADDCOLUMNS ( VALUES ( Dim_Region[Region] ), "@v", [Revenue Variance %] )
+			VAR _nCats = COUNTROWS ( _cats )
+			VAR _nRegs = COUNTROWS ( _regs )
+			VAR _best = TOPN ( 1, _cats, [@v], DESC )
+			VAR _worst = TOPN ( 1, _cats, [@v], ASC )
+			VAR _bestReg = TOPN ( 1, _regs, [@v], DESC )
+			VAR _bName = MAXX ( _best, Dim_Brand[Category] )
+			VAR _bV = MAXX ( _best, [@v] )
+			VAR _wName = MAXX ( _worst, Dim_Brand[Category] )
+			VAR _wV = MAXX ( _worst, [@v] )
+			VAR _rName = MAXX ( _bestReg, Dim_Region[Region] )
+			VAR _rV = MAXX ( _bestReg, [@v] )
+			VAR _fmt = "+#,0.0%;-#,0.0%;0.0%"
+			VAR _catPart =
+			    IF (
+			        _nCats = 1,
+			        _bName & " is " & FORMAT ( _bV, _fmt ) & " against budget.",
+			        _bName & " leads the portfolio at " & FORMAT ( _bV, _fmt ) & " against budget, and "
+			            & _wName & " is weakest at " & FORMAT ( _wV, _fmt )
+			            & " - review pricing and channel mix."
+			    )
+			VAR _regPart =
+			    IF (
+			        _nRegs = 1,
+			        " " & _rName & " is " & FORMAT ( _rV, _fmt ) & ".",
+			        " " & _rName & " is the strongest region at " & FORMAT ( _rV, _fmt ) & "."
+			    )
+			RETURN
+			    IF (
+			        ISBLANK ( [Budget Revenue] ),
+			        "No revenue in the current selection.",
+			        _catPart & _regPart
+			    )
+		displayFolder: NARRATIVE
+		lineageTag: f3dc7cd6-808c-48c0-8604-2130f31bcf68
+
+	/// Margin page commentary, generated from the current filter context: the category with the widest COGS ratio gap against budget, with actual and budgeted ratios. Wording follows the sign of the gap, and reports 'in line with budget' when it rounds to zero. Returns text, so it has no numeric format string.
+	measure 'Narrative Margin' =
+			VAR _cats =
+			    ADDCOLUMNS (
+			        VALUES ( Dim_Brand[Category] ),
+			        "@act", [Actual COGS Ratio],
+			        "@bud", [Budget COGS Ratio],
+			        "@gap", [Actual COGS Ratio] - [Budget COGS Ratio]
+			    )
+			VAR _w = TOPN ( 1, _cats, [@gap], DESC )
+			VAR _n = MAXX ( _w, Dim_Brand[Category] )
+			VAR _a = MAXX ( _w, [@act] )
+			VAR _b = MAXX ( _w, [@bud] )
+			VAR _g = MAXX ( _w, [@gap] )
+			VAR _pp = FORMAT ( ABS ( _g ) * 100, "0.0" )
+			VAR _vs = FORMAT ( _a, "#,0.0%" ) & " actual vs " & FORMAT ( _b, "#,0.0%" ) & " budgeted"
+			RETURN
+			    SWITCH (
+			        TRUE ( ),
+			        ISBLANK ( [Actual Revenue] ), "No revenue in the current selection.",
+			        _g > 0.0005,
+			            _n & " has the widest COGS gap: " & _pp & "pp above budget (" & _vs
+			                & "), so every EUR 1 of revenue carries EUR " & FORMAT ( ABS ( _g ), "0.00" )
+			                & " more cost of goods than planned.",
+			        _g < -0.0005,
+			            "No category is above its budgeted COGS ratio - the closest is " & _n & ", "
+			                & _pp & "pp below budget (" & _vs & ").",
+			        "COGS ratios are in line with budget across the current selection (" & _n & " at "
+			            & _vs & ")."
+			    )
+		displayFolder: NARRATIVE
+		lineageTag: c8c414dd-9c1b-4a05-a457-5f5132181627
+
+	/// Budget vs Actuals page commentary, generated from the current filter context: widest COGS gap, strongest region, and largest channel revenue drag. The flat OPEX budget caveat is a static note on the page, not part of this text. Each clause follows the sign of its own figure, so it never calls a favourable number an overrun or a drag. Returns text, so it has no numeric format string.
+	measure 'Narrative Budget vs Actuals' =
+			VAR _cats =
+			    ADDCOLUMNS (
+			        VALUES ( Dim_Brand[Category] ),
+			        "@gap", [Actual COGS Ratio] - [Budget COGS Ratio]
+			    )
+			VAR _wc = TOPN ( 1, _cats, [@gap], DESC )
+			VAR _wcName = MAXX ( _wc, Dim_Brand[Category] )
+			VAR _wcGap = MAXX ( _wc, [@gap] )
+			VAR _regs =
+			    ADDCOLUMNS ( VALUES ( Dim_Region[Region] ), "@v", [Revenue Variance %] )
+			VAR _nRegs = COUNTROWS ( _regs )
+			VAR _br = TOPN ( 1, _regs, [@v], DESC )
+			VAR _brName = MAXX ( _br, Dim_Region[Region] )
+			VAR _brV = MAXX ( _br, [@v] )
+			VAR _nPos = COUNTROWS ( FILTER ( _regs, [@v] > 0 ) )
+			VAR _chans =
+			    ADDCOLUMNS ( VALUES ( Dim_Channel[Channel] ), "@d", [Revenue Variance] )
+			VAR _wch = TOPN ( 1, _chans, [@d], ASC )
+			VAR _wchName = MAXX ( _wch, Dim_Channel[Channel] )
+			VAR _wchV = MAXX ( _wch, [@d] )
+			VAR _fmt = "+#,0.0%;-#,0.0%;0.0%"
+			VAR _cur = "\€#,0;-\€#,0;\€0"
+			VAR _a1 =
+			    IF (
+			        _wcGap > 0.0005,
+			        "1) Review the " & _wcName & " COGS overrun ("
+			            & FORMAT ( _wcGap * 100, "0.0" ) & "pp above budget). ",
+			        "1) No category is running above its budgeted COGS ratio. "
+			    )
+			VAR _a2 =
+			    IF (
+			        _nRegs = 1,
+			        "2) " & _brName & " is " & FORMAT ( _brV, _fmt ) & " against budget. ",
+			        "2) " & _brName & " is the strongest region at " & FORMAT ( _brV, _fmt )
+			            & IF ( _nPos = 1, " and the only one above budget", "" ) & ". "
+			    )
+			VAR _a3 =
+			    IF (
+			        _wchV < 0,
+			        "3) " & _wchName & " is the largest revenue drag at "
+			            & FORMAT ( _wchV, _cur ) & " against budget. ",
+			        "3) Every channel is at or above budget, " & _wchName & " the weakest at "
+			            & FORMAT ( _wchV, _cur ) & ". "
+			    )
+			RETURN
+			    IF (
+			        ISBLANK ( [Budget Revenue] ),
+			        "No data in the current selection.",
+			        TRIM ( _a1 & _a2 & _a3 )
+			    )
+		displayFolder: NARRATIVE
+		lineageTag: 625a2bf4-bcab-412b-9974-764d8fb5e8b5
+
+	/// Actual amount for one P&L line (EUR). Leaf accounts sum the fact; the Gross Profit and EBIT rows clear the account filter and return the corresponding subtotal. Blank at the grand total, because a P&L does not add its own sections together.
+	measure 'P&L Actual' =
+			VAR _cat = SELECTEDVALUE ( Dim_Account[AccountCategory] )
+			RETURN
+			    IF (
+			        NOT HASONEVALUE ( Dim_Account[AccountName] ),
+			        BLANK ( ),
+			        SWITCH (
+			            TRUE ( ),
+			            _cat = "Gross Profit", CALCULATE ( [Actual Gross Profit], REMOVEFILTERS ( Dim_Account ) ),
+			            _cat = "EBIT", CALCULATE ( [Actual EBIT], REMOVEFILTERS ( Dim_Account ) ),
+			            SELECTEDVALUE ( Dim_Account[IsCalculated] ) = TRUE ( ), BLANK ( ),
+			            CALCULATE (
+			                SUM ( Fact_Financials[ActualAmount] ),
+			                Fact_Financials[VersionType] = "Actual"
+			            )
+			        )
+			    )
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: P&L STATEMENT
+		lineageTag: 64044489-685d-4086-9b5d-bb1b693681b1
+
+	/// Budgeted amount for one P&L line (EUR), mirroring P&L Actual.
+	measure 'P&L Budget' =
+			VAR _cat = SELECTEDVALUE ( Dim_Account[AccountCategory] )
+			RETURN
+			    IF (
+			        NOT HASONEVALUE ( Dim_Account[AccountName] ),
+			        BLANK ( ),
+			        SWITCH (
+			            TRUE ( ),
+			            _cat = "Gross Profit", CALCULATE ( [Budget Gross Profit], REMOVEFILTERS ( Dim_Account ) ),
+			            _cat = "EBIT", CALCULATE ( [Budget EBIT], REMOVEFILTERS ( Dim_Account ) ),
+			            SELECTEDVALUE ( Dim_Account[IsCalculated] ) = TRUE ( ), BLANK ( ),
+			            CALCULATE (
+			                SUM ( Fact_Financials[BudgetAmount] ),
+			                Fact_Financials[VersionType] = "Budget"
+			            )
+			        )
+			    )
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: P&L STATEMENT
+		lineageTag: f8c328e6-9f48-4d41-ab1f-2a8eb53b9cb6
+
+	/// Variance for one P&L line (EUR), signed so that positive is always favourable: revenue and profit lines use Actual less Budget, cost lines use Budget less Actual. Uses Dim_Account[IsCost] to decide.
+	measure 'P&L Variance (Fav)' =
+			VAR _a = [P&L Actual]
+			VAR _b = [P&L Budget]
+			VAR _isCost = SELECTEDVALUE ( Dim_Account[IsCost] ) = TRUE ( )
+			RETURN
+			    IF (
+			        ISBLANK ( _a ) && ISBLANK ( _b ),
+			        BLANK ( ),
+			        IF ( _isCost, _b - _a, _a - _b )
+			    )
+		formatString: \€#,0;-\€#,0;\€0
+		displayFolder: P&L STATEMENT
+		lineageTag: 4fceb2ba-98bc-4bbe-9799-3560fbe4b9af
+
+	/// Favourable-signed variance as a share of the budgeted amount for that line. The denominator is absolute so the sign always comes from the variance itself.
+	measure 'P&L Variance %' = DIVIDE ( [P&L Variance (Fav)], ABS ( [P&L Budget] ) )
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: P&L STATEMENT
+		lineageTag: 7202d0da-3d7a-4f69-9b0d-61a8356d22d1
+
+	/// COGS ratio gap against budget as an arrow plus magnitude in percentage points, for example ▲ 0.42pp. Up arrow is favourable, meaning the actual ratio sits below budget. Multiplies by 100 before formatting because a percentage-point gap is not a percentage. Returns text, so it has no numeric format string.
+	measure 'COGS Ratio vs Budget Label' =
+			VAR _v = [COGS Ratio Variance (Fav)]
+			RETURN
+			    IF (
+			        ISBLANK ( _v ),
+			        BLANK ( ),
+			        IF ( _v >= 0, "▲ ", "▼ " ) & FORMAT ( ABS ( _v ) * 100, "0.00" ) & "pp"
+			    )
+		displayFolder: KPI CARD LABELS
+		lineageTag: 5c1b7f42-9a0e-4d76-8b31-0a6f2d4e91c7
+
+	/// Hex colour for the gross margin versus budget card: favourable green at or above budget, unfavourable vermillion below it. Feeds the card font colour as a field-value conditional format, so it returns text rather than a number.
+	measure 'Gross Margin vs Budget Colour' =
+			VAR _v = [Actual Gross Margin %] - [Budget Gross Margin %]
+			RETURN
+			    IF ( ISBLANK ( _v ), BLANK ( ), IF ( _v >= 0, "#009E73", "#D55E00" ) )
+		displayFolder: KPI CARD LABELS
+		lineageTag: 8e34a1d6-62b7-4f0c-9d58-3b71c0e5a24f
+
+	/// Hex colour for the COGS ratio versus budget card: favourable green when the actual ratio is at or below budget, unfavourable vermillion when above. Feeds the card font colour as a field-value conditional format, so it returns text rather than a number.
+	measure 'COGS Ratio vs Budget Colour' =
+			VAR _v = [COGS Ratio Variance (Fav)]
+			RETURN
+			    IF ( ISBLANK ( _v ), BLANK ( ), IF ( _v >= 0, "#009E73", "#D55E00" ) )
+		displayFolder: KPI CARD LABELS
+		lineageTag: b0f9c527-4d18-43ae-85e6-7c92f1b3608d
+
+	partition '_Measures Table' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

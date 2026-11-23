@@ -1,0 +1,13 @@
+# Power BI writes TMDL and PBIR with CRLF on Windows. Normalise to LF in the repository so a
+# Desktop save does not show up as "every line changed", and so the files stay byte-stable
+# across machines. Power BI reads either line ending; what it will NOT accept is a UTF-8 BOM,
+# so never configure an editor or script to add one to these files.
+* text=auto eol=lf
+
+*.xlsx binary
+*.pbix binary
+*.pbit binary
+*.abf binary
+*.png binary
+*.pdf binary
+*.docx binary

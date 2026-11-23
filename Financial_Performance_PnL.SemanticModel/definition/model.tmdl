@@ -1,0 +1,25 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["SourceFolder","Fact_Financials","Dim_Account","Dim_Brand","Dim_Channel","Dim_Date","Dim_Region","Refresh Stamp","_Measures Table"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table '_Measures Table'
+ref table 'Refresh Stamp'
+ref table Fact_Financials
+ref table Dim_Region
+ref table Dim_Date
+ref table Dim_Channel
+ref table Dim_Brand
+ref table Dim_Account
+
+ref cultureInfo en-US
+
