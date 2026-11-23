@@ -386,7 +386,7 @@ byte-wise without a BOM.
 | Margin page fix | The "Gross Profit: Actual vs Budget by Account" chart was worse than the baseline review recorded. With `Actual Revenue` filtered to revenue accounts and the axis on a cost account, the intersection was empty, so every COGS bar was plotting *negative COGS* under a gross-profit title. It is now "COGS: Actual vs Budget by Account", on `Dim_Account[AccountName]` with a visual-level filter to the COGS section. |
 | New page | **P&L Statement** — a matrix on `Dim_Account[AccountName]` in `PLSort` order showing actual, budget, favourable-signed variance and variance %, with Gross Profit and EBIT as calculated rows. The Interest and Net Profit accounts return blank on all four measures, so the matrix drops them without needing a filter, and the grand total is deliberately blank because a P&L does not add its own sections together. |
 | Accessibility | Alt text added to every data visual across all four pages. There was none before. |
-| Layout | A later pass corrected four visuals that were clipping their own content: the region × category matrix and the variance summary table were showing only part of their rows, the COGS by account chart only 3 of 5 accounts, and the three narrative cards were truncating mid-sentence. |
+| Layout | A later pass corrected four visuals that were clipping their own content: the region × category matrix and the variance summary table were showing only part of their rows, the COGS by account chart only part of its accounts, and the P&L table filling half its width. Enlarging the COGS chart cost the COGS ratio chart above it 10px, which dropped it below the height needed to lay out four category bands, so the lowest-sorted category paginated off the bottom — restored to 222px. The narrative cards ignore `wordWrap`, so instead the three narrative measures were shortened to a single line: the longest text each can produce was checked across all 50,625 slicer states (every non-empty subset of Quarter × Region × Category × Channel), the widest being 768px inside a 950px usable card. The cards then dropped from 78px to 46px and the reclaimed space went to the charts. |
 
 ### 4.3 Repository
 
@@ -480,7 +480,8 @@ An empty selection returns "No revenue in the current selection." rather than an
 - **`SourceFolder` ships with a placeholder value**, so no machine's directory layout or user name
   enters the repository. It must be pointed at the clone's `data` folder once before the first
   refresh; the README says so.
-- **The committed screenshots predate the layout pass** in §4.2 and need regenerating from a fresh
-  PDF export.
-- **The published report predates the layout pass** and will keep serving the earlier version until
-  it is republished.
+- **The published report predates the layout pass** in §4.2 and will keep serving the earlier
+  version until it is republished.
+- **The waterfall's two smallest data labels sit close enough to touch** at the current width. Not
+  corrected, because the values they label are legible and moving them risks the layout budget the
+  rest of the page now depends on.

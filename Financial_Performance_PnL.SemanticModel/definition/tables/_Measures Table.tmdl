@@ -200,7 +200,7 @@ table '_Measures Table'
 		displayFolder: UTILITY
 		lineageTag: 23eb24ff-5e9f-4aba-a7cd-fc7228031201
 
-	/// Revenue page commentary, generated from the current filter context: strongest category, weakest category and strongest region. Collapses to single-item wording when only one category or one region is in context. Returns text, so it has no numeric format string.
+	/// Revenue page commentary, generated from the current filter context: the strongest and weakest brand category against budget and the leading region. Collapses to a single clause when one category or one region is selected, so it never calls the only member on screen the strongest. Kept to one line so the card never truncates. Returns text, so it has no numeric format string.
 	measure 'Narrative Revenue' =
 			VAR _cats =
 			    ADDCOLUMNS ( VALUES ( Dim_Brand[Category] ), "@v", [Revenue Variance %] )
@@ -221,16 +221,15 @@ table '_Measures Table'
 			VAR _catPart =
 			    IF (
 			        _nCats = 1,
-			        _bName & " is " & FORMAT ( _bV, _fmt ) & " against budget.",
-			        _bName & " leads the portfolio at " & FORMAT ( _bV, _fmt ) & " against budget, and "
-			            & _wName & " is weakest at " & FORMAT ( _wV, _fmt )
-			            & " - review pricing and channel mix."
+			        _bName & " " & FORMAT ( _bV, _fmt ) & " vs budget.",
+			        _bName & " leads at " & FORMAT ( _bV, _fmt ) & ", "
+			            & _wName & " weakest at " & FORMAT ( _wV, _fmt ) & "."
 			    )
 			VAR _regPart =
 			    IF (
 			        _nRegs = 1,
-			        " " & _rName & " is " & FORMAT ( _rV, _fmt ) & ".",
-			        " " & _rName & " is the strongest region at " & FORMAT ( _rV, _fmt ) & "."
+			        " " & _rName & " " & FORMAT ( _rV, _fmt ) & ".",
+			        " " & _rName & " strongest at " & FORMAT ( _rV, _fmt ) & "."
 			    )
 			RETURN
 			    IF (
@@ -241,7 +240,7 @@ table '_Measures Table'
 		displayFolder: NARRATIVE
 		lineageTag: f3dc7cd6-808c-48c0-8604-2130f31bcf68
 
-	/// Margin page commentary, generated from the current filter context: the category with the widest COGS ratio gap against budget, with actual and budgeted ratios. Wording follows the sign of the gap, and reports 'in line with budget' when it rounds to zero. Returns text, so it has no numeric format string.
+	/// Margin page commentary, generated from the current filter context: the category with the widest COGS ratio gap against budget, with actual and budgeted ratios. Wording follows the sign of the gap, and reports 'in line with budget' when it rounds to zero. Kept to one line so the card never truncates. Returns text, so it has no numeric format string.
 	measure 'Narrative Margin' =
 			VAR _cats =
 			    ADDCOLUMNS (
@@ -256,25 +255,22 @@ table '_Measures Table'
 			VAR _b = MAXX ( _w, [@bud] )
 			VAR _g = MAXX ( _w, [@gap] )
 			VAR _pp = FORMAT ( ABS ( _g ) * 100, "0.0" )
-			VAR _vs = FORMAT ( _a, "#,0.0%" ) & " actual vs " & FORMAT ( _b, "#,0.0%" ) & " budgeted"
+			VAR _vs = FORMAT ( _a, "#,0.0%" ) & " vs " & FORMAT ( _b, "#,0.0%" ) & " budgeted"
 			RETURN
 			    SWITCH (
 			        TRUE ( ),
 			        ISBLANK ( [Actual Revenue] ), "No revenue in the current selection.",
 			        _g > 0.0005,
-			            _n & " has the widest COGS gap: " & _pp & "pp above budget (" & _vs
-			                & "), so every EUR 1 of revenue carries EUR " & FORMAT ( ABS ( _g ), "0.00" )
-			                & " more cost of goods than planned.",
+			            _n & " has the widest COGS gap: " & _pp & "pp above budget (" & _vs & ").",
 			        _g < -0.0005,
-			            "No category is above its budgeted COGS ratio - the closest is " & _n & ", "
-			                & _pp & "pp below budget (" & _vs & ").",
-			        "COGS ratios are in line with budget across the current selection (" & _n & " at "
-			            & _vs & ")."
+			            "No category is above budgeted COGS; " & _n & " is closest, "
+			                & _pp & "pp below (" & _vs & ").",
+			        "COGS ratios are in line with budget (" & _n & " at " & _vs & ")."
 			    )
 		displayFolder: NARRATIVE
 		lineageTag: c8c414dd-9c1b-4a05-a457-5f5132181627
 
-	/// Budget vs Actuals page commentary, generated from the current filter context: widest COGS gap, strongest region, and largest channel revenue drag. The flat OPEX budget caveat is a static note on the page, not part of this text. Each clause follows the sign of its own figure, so it never calls a favourable number an overrun or a drag. Returns text, so it has no numeric format string.
+	/// Budget vs Actuals page commentary, generated from the current filter context: widest COGS gap, strongest region, and largest channel revenue drag. The flat OPEX budget caveat is a static note on the page, not part of this text. Each clause follows the sign of its own figure, so it never calls a favourable number an overrun or a drag. Kept to one line so the card never truncates. Returns text, so it has no numeric format string.
 	measure 'Narrative Budget vs Actuals' =
 			VAR _cats =
 			    ADDCOLUMNS (
@@ -301,24 +297,21 @@ table '_Measures Table'
 			VAR _a1 =
 			    IF (
 			        _wcGap > 0.0005,
-			        "1) Review the " & _wcName & " COGS overrun ("
-			            & FORMAT ( _wcGap * 100, "0.0" ) & "pp above budget). ",
-			        "1) No category is running above its budgeted COGS ratio. "
+			        _wcName & " COGS " & FORMAT ( _wcGap * 100, "0.0" ) & "pp over budget.",
+			        "No category is over its budgeted COGS ratio."
 			    )
 			VAR _a2 =
 			    IF (
 			        _nRegs = 1,
-			        "2) " & _brName & " is " & FORMAT ( _brV, _fmt ) & " against budget. ",
-			        "2) " & _brName & " is the strongest region at " & FORMAT ( _brV, _fmt )
-			            & IF ( _nPos = 1, " and the only one above budget", "" ) & ". "
+			        " " & _brName & " " & FORMAT ( _brV, _fmt ) & ".",
+			        " " & _brName & " strongest at " & FORMAT ( _brV, _fmt )
+			            & IF ( _nPos = 1, ", the only one", "" ) & "."
 			    )
 			VAR _a3 =
 			    IF (
 			        _wchV < 0,
-			        "3) " & _wchName & " is the largest revenue drag at "
-			            & FORMAT ( _wchV, _cur ) & " against budget. ",
-			        "3) Every channel is at or above budget, " & _wchName & " the weakest at "
-			            & FORMAT ( _wchV, _cur ) & ". "
+			        " " & _wchName & " largest drag at " & FORMAT ( _wchV, _cur ) & ".",
+			        " " & _wchName & " weakest at " & FORMAT ( _wchV, _cur ) & "."
 			    )
 			RETURN
 			    IF (
